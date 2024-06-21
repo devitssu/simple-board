@@ -1,5 +1,7 @@
 package com.teamsparta.simpleboard.api.domain.auth.controller
 
+import com.teamsparta.simpleboard.api.domain.auth.dto.SignInRequest
+import com.teamsparta.simpleboard.api.domain.auth.dto.SignInResponse
 import com.teamsparta.simpleboard.api.domain.auth.dto.SignUpRequest
 import com.teamsparta.simpleboard.api.domain.auth.service.AuthService
 import jakarta.validation.Valid
@@ -42,5 +44,12 @@ class AuthController(
     fun signUp(@RequestBody @Valid request: SignUpRequest): ResponseEntity<Unit> {
         authService.signUp(request)
         return ResponseEntity.status(HttpStatus.CREATED).build()
+    }
+
+    @PostMapping("/sign-in")
+    fun signIn(@RequestBody request: SignInRequest): ResponseEntity<SignInResponse> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(authService.signIn(request))
     }
 }
