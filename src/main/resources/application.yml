@@ -11,6 +11,8 @@ spring:
     properties:
       hibernate:
         highlight_sql: true
+  config:
+    import: application-secret.yml
 
 logging:
   level:
