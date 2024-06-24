@@ -1,7 +1,6 @@
 package com.teamsparta.simpleboard.api.domain.board.model
 
 import com.teamsparta.simpleboard.api.domain.auth.model.Member
-import com.teamsparta.simpleboard.api.exception.NoPermissionException
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -28,9 +27,12 @@ class Post(
     var updatedAt: LocalDateTime? = null
 ) {
     fun update(id: Long, title: String, content: String) {
-        if (createdBy.id != id) throw NoPermissionException("권한이 없습니다.")
         this.title = title
         this.content = content
         this.updatedAt = LocalDateTime.now()
+    }
+
+    fun checkPermission(id: Long): Boolean {
+        return createdBy.id == id
     }
 }

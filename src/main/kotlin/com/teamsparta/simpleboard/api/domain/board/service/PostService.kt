@@ -9,4 +9,5 @@ interface PostService {
     fun addPost(request: AddPostRequest, userPrincipal: UserPrincipal): PostResponse
     fun getPost(postId: Long): PostResponse
     fun updatePost(postId: Long, request: UpdatePostRequest, userPrincipal: UserPrincipal): PostResponse
+    fun deletePost(postId: Long, userPrincipal: UserPrincipal)
 }

@@ -9,6 +9,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -43,5 +44,14 @@ class PostController(
         @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): ResponseEntity<PostResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(postService.updatePost(postId, request, userPrincipal))
+    }
+
+    @DeleteMapping("/{postId}")
+    fun deletePost(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
+    ): ResponseEntity<Void> {
+        postService.deletePost(postId, userPrincipal)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

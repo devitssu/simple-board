@@ -6,6 +6,7 @@ import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
 import com.teamsparta.simpleboard.api.domain.board.dto.UpdatePostRequest
 import com.teamsparta.simpleboard.api.domain.board.repository.PostRepository
 import com.teamsparta.simpleboard.api.exception.ModelNotFoundException
+import com.teamsparta.simpleboard.api.exception.NoPermissionException
 import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -35,8 +36,16 @@ class PostServiceImpl(
     @Transactional
     override fun updatePost(postId: Long, request: UpdatePostRequest, userPrincipal: UserPrincipal): PostResponse {
         return postRepository.findByIdOrNull(postId)
+            ?.also { check(it.checkPermission(userPrincipal.id)) { throw NoPermissionException("권한이 없습니다.") } }
             ?.also { it.update(userPrincipal.id, request.title, request.content) }
             ?.let { PostResponse.from(it) }
+            ?: throw ModelNotFoundException("Post", postId)
+    }
+
+    override fun deletePost(postId: Long, userPrincipal: UserPrincipal) {
+        postRepository.findByIdOrNull(postId)
+            ?.also { check(it.checkPermission(userPrincipal.id)) { throw NoPermissionException("권한이 없습니다.") } }
+            ?.let { postRepository.delete(it) }
             ?: throw ModelNotFoundException("Post", postId)
     }
 }
