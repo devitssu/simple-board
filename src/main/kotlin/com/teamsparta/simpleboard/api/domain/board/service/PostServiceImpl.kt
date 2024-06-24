@@ -4,8 +4,8 @@ import com.teamsparta.simpleboard.api.domain.auth.repository.MemberRepository
 import com.teamsparta.simpleboard.api.domain.board.dto.AddPostRequest
 import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
 import com.teamsparta.simpleboard.api.domain.board.repository.PostRepository
+import com.teamsparta.simpleboard.api.exception.ModelNotFoundException
 import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
-import jakarta.persistence.EntityNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,7 +18,16 @@ class PostServiceImpl(
 
     @Transactional
     override fun addPost(request: AddPostRequest, userPrincipal: UserPrincipal): PostResponse {
-        val member = memberRepository.findByIdOrNull(userPrincipal.id) ?: throw EntityNotFoundException()
+        val member = memberRepository.findByIdOrNull(userPrincipal.id) ?: throw ModelNotFoundException(
+            "Member",
+            userPrincipal.id
+        )
         return PostResponse.from(postRepository.save(request.toEntity(member)))
+    }
+
+    override fun getPost(postId: Long): PostResponse {
+        return postRepository.findByIdOrNull(postId)
+            ?.let { PostResponse.from(it) }
+            ?: throw ModelNotFoundException("Post", postId)
     }
 }

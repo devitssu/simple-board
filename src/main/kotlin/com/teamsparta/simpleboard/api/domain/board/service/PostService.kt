@@ -6,4 +6,5 @@ import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
 
 interface PostService {
     fun addPost(request: AddPostRequest, userPrincipal: UserPrincipal): PostResponse
+    fun getPost(postId: Long): PostResponse
 }

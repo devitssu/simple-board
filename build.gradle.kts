@@ -19,12 +19,6 @@ repositories {
     mavenCentral()
 }
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
-}
-
 val jjwtVersion = "0.12.5"
 
 dependencies {
