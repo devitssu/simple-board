@@ -2,6 +2,7 @@ package com.teamsparta.simpleboard.api.domain.board.controller
 
 import com.teamsparta.simpleboard.api.domain.board.dto.AddPostRequest
 import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
+import com.teamsparta.simpleboard.api.domain.board.dto.UpdatePostRequest
 import com.teamsparta.simpleboard.api.domain.board.service.PostService
 import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
 import jakarta.validation.Valid
@@ -11,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -32,5 +34,14 @@ class PostController(
     @GetMapping("/{postId}")
     fun getPost(@PathVariable postId: Long): ResponseEntity<PostResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getPost(postId))
+    }
+
+    @PutMapping("/{postId}")
+    fun updatePost(
+        @PathVariable postId: Long,
+        @RequestBody @Valid request: UpdatePostRequest,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
+    ): ResponseEntity<PostResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(postService.updatePost(postId, request, userPrincipal))
     }
 }

@@ -55,4 +55,11 @@ class GlobalExceptionHandler {
             .status(HttpStatus.NOT_FOUND)
             .body(ErrorResponse("404", e.message))
     }
+
+    @ExceptionHandler(NoPermissionException::class)
+    fun handleUnauthorizedException(e: NoPermissionException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse("403", e.message))
+    }
 }
