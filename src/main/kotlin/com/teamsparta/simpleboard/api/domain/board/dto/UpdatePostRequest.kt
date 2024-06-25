@@ -1,5 +1,7 @@
 package com.teamsparta.simpleboard.api.domain.board.dto
 
+import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
+import com.teamsparta.simpleboard.api.domain.board.model.PostStatus
 import org.hibernate.validator.constraints.Length
 
 data class UpdatePostRequest(
@@ -7,5 +9,9 @@ data class UpdatePostRequest(
     val title: String,
 
     @field:Length(max = 5000)
-    val content: String
+    val content: String,
+
+    val category: PostCategory,
+    val status: PostStatus,
+    val tagList: List<String>,
 )

@@ -8,6 +8,9 @@ data class PostResponse(
     val title: String,
     val content: String,
     val createdBy: String,
+    val category: String,
+    val status: String,
+    val tagList: List<String>,
     val createdAt: LocalDateTime
 ) {
     companion object {
@@ -17,7 +20,10 @@ data class PostResponse(
                 title = post.title,
                 content = post.content,
                 createdAt = post.createdAt,
-                createdBy = post.createdBy.nickname
+                createdBy = post.createdBy.nickname,
+                category = post.category.name,
+                status = post.status.name,
+                tagList = post.tags.map { it.tag.name },
             )
         }
     }
