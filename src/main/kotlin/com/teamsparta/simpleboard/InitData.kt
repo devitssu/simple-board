@@ -10,9 +10,11 @@ import com.teamsparta.simpleboard.api.domain.board.service.PostService
 import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.context.annotation.Profile
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
+@Profile("!test")
 @Component
 class InitData(
     private val memberRepository: MemberRepository,
