@@ -5,6 +5,8 @@ import com.teamsparta.simpleboard.api.domain.board.dto.AddPostRequest
 import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
 import com.teamsparta.simpleboard.api.domain.board.dto.UpdatePostRequest
 import com.teamsparta.simpleboard.api.domain.board.model.Post
+import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
+import com.teamsparta.simpleboard.api.domain.board.model.PostStatus
 import com.teamsparta.simpleboard.api.domain.board.model.PostTag
 import com.teamsparta.simpleboard.api.domain.board.model.Tag
 import com.teamsparta.simpleboard.api.domain.board.repository.PostRepository
@@ -12,6 +14,8 @@ import com.teamsparta.simpleboard.api.domain.board.repository.TagRepository
 import com.teamsparta.simpleboard.api.exception.ModelNotFoundException
 import com.teamsparta.simpleboard.api.exception.NoPermissionException
 import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -56,6 +60,18 @@ class PostServiceImpl(
             ?.also { check(it.checkPermission(userPrincipal.id)) { throw NoPermissionException("권한이 없습니다.") } }
             ?.let { postRepository.delete(it) }
             ?: throw ModelNotFoundException("Post", postId)
+    }
+
+    override fun getPostList(
+        pageable: Pageable,
+        searchType: String?,
+        keyword: String?,
+        category: PostCategory?,
+        status: PostStatus?,
+        tag: String?
+    ): Page<PostResponse> {
+        return postRepository.findByPageableAndConditions(pageable, searchType, keyword, category, status, tag)
+            .map { PostResponse.from(it) }
     }
 
     fun Post.addTags(tagList: List<String>) {
