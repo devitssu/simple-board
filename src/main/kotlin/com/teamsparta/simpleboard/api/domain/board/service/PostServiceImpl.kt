@@ -3,6 +3,7 @@ package com.teamsparta.simpleboard.api.domain.board.service
 import com.teamsparta.simpleboard.api.domain.auth.repository.MemberRepository
 import com.teamsparta.simpleboard.api.domain.board.dto.AddPostRequest
 import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
+import com.teamsparta.simpleboard.api.domain.board.dto.SearchType
 import com.teamsparta.simpleboard.api.domain.board.dto.UpdatePostRequest
 import com.teamsparta.simpleboard.api.domain.board.model.Post
 import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
@@ -64,7 +65,7 @@ class PostServiceImpl(
 
     override fun getPostList(
         pageable: Pageable,
-        searchType: String?,
+        searchType: SearchType?,
         keyword: String?,
         category: PostCategory?,
         status: PostStatus?,

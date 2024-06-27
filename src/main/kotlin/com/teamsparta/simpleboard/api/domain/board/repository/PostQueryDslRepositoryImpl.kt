@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.EntityPathBase
 import com.querydsl.core.types.dsl.PathBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.teamsparta.simpleboard.api.domain.auth.model.QMember
+import com.teamsparta.simpleboard.api.domain.board.dto.SearchType
 import com.teamsparta.simpleboard.api.domain.board.model.Post
 import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
 import com.teamsparta.simpleboard.api.domain.board.model.PostStatus
@@ -31,7 +32,7 @@ class PostQueryDslRepositoryImpl(
 
     override fun findByPageableAndConditions(
         pageable: Pageable,
-        searchType: String?,
+        searchType: SearchType?,
         keyword: String?,
         category: PostCategory?,
         status: PostStatus?,
@@ -70,7 +71,7 @@ class PostQueryDslRepositoryImpl(
     }
 
     private fun allConditions(
-        searchType: String?,
+        searchType: SearchType?,
         keyword: String?,
         category: PostCategory?,
         status: PostStatus?,
@@ -83,11 +84,11 @@ class PostQueryDslRepositoryImpl(
             .and(eqStatus(status))
     }
 
-    private fun searchByKeyword(searchType: String?, keyword: String?): BooleanExpression? {
+    private fun searchByKeyword(searchType: SearchType?, keyword: String?): BooleanExpression? {
         return when (searchType) {
-            "title" -> containsTitle(keyword)
-            "nickname" -> containsNickname(keyword)
-            "content" -> containsContent(keyword)
+            SearchType.TITLE -> containsTitle(keyword)
+            SearchType.NICKNAME -> containsNickname(keyword)
+            SearchType.CONTENT -> containsContent(keyword)
             else -> null
         }
     }

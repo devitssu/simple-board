@@ -2,6 +2,7 @@ package com.teamsparta.simpleboard.api.domain.board.service
 
 import com.teamsparta.simpleboard.api.domain.board.dto.AddPostRequest
 import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
+import com.teamsparta.simpleboard.api.domain.board.dto.SearchType
 import com.teamsparta.simpleboard.api.domain.board.dto.UpdatePostRequest
 import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
 import com.teamsparta.simpleboard.api.domain.board.model.PostStatus
@@ -16,7 +17,7 @@ interface PostService {
     fun deletePost(postId: Long, userPrincipal: UserPrincipal)
     fun getPostList(
         pageable: Pageable,
-        searchType: String?,
+        searchType: SearchType?,
         keyword: String?,
         category: PostCategory?,
         status: PostStatus?,

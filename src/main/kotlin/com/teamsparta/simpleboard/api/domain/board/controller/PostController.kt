@@ -2,6 +2,7 @@ package com.teamsparta.simpleboard.api.domain.board.controller
 
 import com.teamsparta.simpleboard.api.domain.board.dto.AddPostRequest
 import com.teamsparta.simpleboard.api.domain.board.dto.PostResponse
+import com.teamsparta.simpleboard.api.domain.board.dto.SearchType
 import com.teamsparta.simpleboard.api.domain.board.dto.UpdatePostRequest
 import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
 import com.teamsparta.simpleboard.api.domain.board.model.PostStatus
@@ -51,7 +52,7 @@ class PostController(
             sort = ["createdAt"],
             direction = Sort.Direction.DESC
         ) pageable: Pageable,
-        @RequestParam(required = false) searchType: String?,
+        @RequestParam(required = false) searchType: SearchType?,
         @RequestParam(required = false) keyword: String?,
         @RequestParam(required = false) category: PostCategory?,
         @RequestParam(required = false) status: PostStatus?,
