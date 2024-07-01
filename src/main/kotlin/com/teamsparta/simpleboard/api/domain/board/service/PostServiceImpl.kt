@@ -16,6 +16,7 @@ import com.teamsparta.simpleboard.api.exception.ModelNotFoundException
 import com.teamsparta.simpleboard.api.exception.NoPermissionException
 import com.teamsparta.simpleboard.infra.jwt.UserPrincipal
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -72,7 +73,7 @@ class PostServiceImpl(
         tag: String?
     ): Page<PostResponse> {
         return postRepository.findByPageableAndConditions(pageable, searchType, keyword, category, status, tag)
-            .map { PostResponse.from(it) }
+            .let { PageImpl(it.first.map { postRead -> postRead.toResponse() }, pageable, it.second) }
     }
 
     fun Post.addTags(tagList: List<String>) {

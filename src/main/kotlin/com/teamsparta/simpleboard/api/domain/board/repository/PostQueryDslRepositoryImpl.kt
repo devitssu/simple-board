@@ -7,17 +7,16 @@ import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.core.types.dsl.EntityPathBase
 import com.querydsl.core.types.dsl.PathBuilder
+import com.querydsl.jpa.JPAExpressions
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.teamsparta.simpleboard.api.domain.auth.model.QMember
+import com.teamsparta.simpleboard.api.domain.board.dto.PostRead
 import com.teamsparta.simpleboard.api.domain.board.dto.SearchType
-import com.teamsparta.simpleboard.api.domain.board.model.Post
 import com.teamsparta.simpleboard.api.domain.board.model.PostCategory
 import com.teamsparta.simpleboard.api.domain.board.model.PostStatus
 import com.teamsparta.simpleboard.api.domain.board.model.QPost
 import com.teamsparta.simpleboard.api.domain.board.model.QPostTag
 import com.teamsparta.simpleboard.api.domain.board.model.QTag.tag
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.util.StringUtils
 
@@ -37,37 +36,39 @@ class PostQueryDslRepositoryImpl(
         category: PostCategory?,
         status: PostStatus?,
         tag: String?
-    ): Page<Post> {
+    ): Pair<List<PostRead>, Long> {
         val totalCount = queryFactory
             .select(qPost.countDistinct())
             .from(qPost)
-            .join(qPost.createdBy, qMember)
-            .leftJoin(qPost.tags, qPostTag)
-            .leftJoin(qPostTag.tag, qTag)
+            .leftJoin(qPost.createdBy, qMember)
             .where(allConditions(searchType, keyword, category, status, tag))
             .fetchOne() ?: 0L
 
         val paginatedPostId = queryFactory
             .select(qPost).distinct()
             .from(qPost)
-            .join(qPost.createdBy, qMember)
-            .leftJoin(qPost.tags, qPostTag)
-            .leftJoin(qPostTag.tag, qTag)
+            .leftJoin(qPost.createdBy, qMember).fetchJoin()
             .where(allConditions(searchType, keyword, category, status, tag))
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .orderBy(*getOrderSpecifier(pageable, qPost))
             .fetch()
 
-        val contents = queryFactory.selectFrom(qPost)
-            .join(qPost.createdBy, qMember).fetchJoin()
+        val result = queryFactory
+            .select(qPost, qTag)
+            .from(qPost)
+            .leftJoin(qPost.createdBy, qMember).fetchJoin()
             .leftJoin(qPost.tags, qPostTag).fetchJoin()
-            .leftJoin(qPostTag.tag, qTag).fetchJoin()
+            .leftJoin(qTag).on(qPostTag.tag.id.eq(qTag.id))
             .where(qPost.id.`in`(paginatedPostId.map { it.id }))
             .orderBy(*getOrderSpecifier(pageable, qPost))
             .fetch()
 
-        return PageImpl(contents, pageable, totalCount)
+        val postReadList = result.groupBy { it.get(qPost) }
+            .mapValues { it.value.map { tuple -> tuple.get(qTag) } }
+            .map { PostRead(it.key!!, it.value) }
+
+        return Pair(postReadList, totalCount)
     }
 
     private fun allConditions(
@@ -80,7 +81,7 @@ class PostQueryDslRepositoryImpl(
         return BooleanBuilder()
             .and(searchByKeyword(searchType, keyword))
             .and(eqCategory(category))
-            .and(containsTags(tag))
+            .and(containsTag(tag))
             .and(eqStatus(status))
     }
 
@@ -113,8 +114,14 @@ class PostQueryDslRepositoryImpl(
         return if (status != null) qPost.status.eq(status) else null
     }
 
-    private fun containsTags(tag: String?): BooleanExpression? {
-        return if (!tag.isNullOrEmpty()) qTag.name.containsIgnoreCase(tag) else null
+    private fun containsTag(tag: String?): BooleanExpression? {
+        if (tag.isNullOrEmpty()) return null
+        val subquery = JPAExpressions.select(qPostTag.post.id)
+            .from(qPostTag)
+            .leftJoin(qTag).on(qPostTag.tag.id.eq(qTag.id))
+            .where(qTag.name.containsIgnoreCase(tag))
+
+        return qPost.id.`in`(subquery)
     }
 
     private fun getOrderSpecifier(pageable: Pageable, path: EntityPathBase<*>): Array<OrderSpecifier<*>> {

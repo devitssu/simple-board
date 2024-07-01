@@ -10,7 +10,7 @@ data class PostResponse(
     val createdBy: String,
     val category: String,
     val status: String,
-    val tagList: List<String>,
+    val tagList: List<String?>,
     val createdAt: LocalDateTime
 ) {
     companion object {
